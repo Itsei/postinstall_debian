@@ -1,7 +1,6 @@
 #!/bin/bash
 set -euo pipefail
 
-# Configuration par défaut
 DEFAULT_IFACE="ens33"
 DEFAULT_DNS="8.8.8.8"
 DEFAULT_HOSTNAME="debian-master"
@@ -63,10 +62,7 @@ echo "$HOSTNAME" > /etc/hostname
 
 echo "[9/9] Installation Webmin..."
 if ! dpkg -l | grep -q "^ii  webmin "; then
-    # Installer curl si nécessaire
     apt install -y curl
-
-    # Télécharger et exécuter le script officiel Webmin
     curl -sS -o /tmp/webmin-setup-repo.sh https://raw.githubusercontent.com/webmin/webmin/master/webmin-setup-repo.sh
     sh /tmp/webmin-setup-repo.sh
     apt update -y
@@ -75,7 +71,6 @@ if ! dpkg -l | grep -q "^ii  webmin "; then
 else
     echo "Webmin déjà présent"
 fi
-
 
 echo
 echo "=========================================="
