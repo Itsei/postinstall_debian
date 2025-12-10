@@ -3,7 +3,7 @@ set -euo pipefail
 
 DEFAULT_IFACE="ens33"
 DEFAULT_DNS="8.8.8.8"
-DEFAULT_HOSTNAME="debian-master"
+DEFAULT_HOSTNAME="changeme"
 
 read -p "Voulez-vous configurer une IP statique ? (y/N) " USE_STATIC
 
