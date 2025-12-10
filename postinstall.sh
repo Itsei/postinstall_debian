@@ -23,10 +23,8 @@ apt update -y && apt full-upgrade -y
 
 echo "[2/9] Installation des outils essentiels..."
 apt install -y \
-    openssh-server zip unzip nmap locate ncdu wget git screen \
+    openssh-server zip unzip nmap ncdu wget git screen \
     bind9-dnsutils net-tools sudo lynx ca-certificates
-
-updatedb &> /dev/null || true   # Fonctionne maintenant avec 'locate'
 
 echo "[3/9] Installation Samba + Winbind..."
 apt install -y samba winbind
