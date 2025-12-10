@@ -90,11 +90,11 @@ echo "$HOSTNAME" > /etc/hostname
 
 # --- 9. Installation Webmin silencieuse ---
 echo "[9/9] Installation Webmin..."
+
 if ! dpkg -l | grep -q "^ii  webmin "; then
-    apt install -y curl gnupg apt-transport-https
-    curl -fsSL https://download.webmin.com/jcameron-key.asc | gpg --dearmor -o /usr/share/keyrings/webmin-archive-keyring.gpg
-    echo "deb [signed-by=/usr/share/keyrings/webmin-archive-keyring.gpg] https://download.webmin.com/download/repository sarge contrib" \
-        > /etc/apt/sources.list.d/webmin.list
+    apt update -y
+    apt install -y curl wget gnupg apt-transport-https lsb-release ca-certificates
+    wget -q -O- https://download.webmin.com/download/webmin/webmin-setup-repos.sh | bash
     apt update -y
     apt install -y webmin --install-recommends
 else
