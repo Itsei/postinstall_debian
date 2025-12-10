@@ -27,8 +27,6 @@ apt install -y \
     openssh-server zip unzip nmap ncdu wget git screen \
     bind9-dnsutils net-tools sudo lynx ca-certificates
     
-updatedb
-
 echo "[3/9] Installation Samba + Winbind..."
 apt install -y samba winbind
 
