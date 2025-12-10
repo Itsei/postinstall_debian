@@ -92,16 +92,21 @@ echo "$HOSTNAME" > /etc/hostname
 echo "[9/9] Installation Webmin..."
 
 if ! dpkg -l | grep -q "^ii  webmin "; then
-    apt install -y curl
+    apt update -y
+    apt install -y curl gnupg
+
+    # Télécharger et exécuter le script officiel Webmin pour ajouter le dépôt et la clé
     curl -sS -o /tmp/webmin-setup-repo.sh https://raw.githubusercontent.com/webmin/webmin/master/webmin-setup-repo.sh
     sh /tmp/webmin-setup-repo.sh </dev/null
+
+    # Mettre à jour la liste des paquets et installer Webmin
     apt update -y
-    apt install -y --install-recommends webmin
+    apt install -y webmin --install-recommends
+
     rm -f /tmp/webmin-setup-repo.sh
 else
     echo "Webmin déjà présent"
 fi
-
 # --- Fin ---
 echo
 echo "=========================================="
