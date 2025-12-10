@@ -8,5 +8,5 @@ apt-get install ssh -y
 ```
 ## Exécution du script
 ```bash
-sudo bash -c "$(wget -qO- https://raw.githubusercontent.com/Itsei/postinstall_debian/main/postinstall.sh)"
+bash -c "$(wget -qO- https://raw.githubusercontent.com/Itsei/postinstall_debian/main/postinstall.sh)"
 ```
