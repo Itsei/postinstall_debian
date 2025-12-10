@@ -1,6 +1,7 @@
 # Postinstall Debian 13 (CLI Master VM)
 
 ## Pré-requis
+root
 ```bash
 apt-get update -y
 apt-get install ssh -y
