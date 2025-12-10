@@ -24,9 +24,9 @@ apt update -y && apt full-upgrade -y
 
 echo "[2/9] Installation des outils essentiels..."
 apt install -y \
-    openssh-server zip unzip nmap mlocate ncdu curl git screen \
-    dnsutils net-tools sudo lynx ca-certificates
-
+    openssh-server zip unzip nmap ncdu wget git screen \
+    bind9-dnsutils net-tools sudo lynx ca-certificates
+    
 updatedb
 
 echo "[3/9] Installation Samba + Winbind..."
