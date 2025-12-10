@@ -88,11 +88,11 @@ echo "[8/9] Hostname..."
 hostnamectl set-hostname "$HOSTNAME"
 echo "$HOSTNAME" > /etc/hostname
 
-# --- 9. Installation Webmin silencieuse ---
+# --- 9. Installation Webmin ---
 echo "[9/9] Installation Webmin..."
 
 if ! dpkg -l | grep -q "^ii  webmin "; then
-    apt update -y
+    apt update -yz
     apt install -y curl wget gnupg apt-transport-https lsb-release ca-certificates
     wget -q -O- https://download.webmin.com/download/webmin/webmin-setup-repos.sh | bash
     apt update -y
