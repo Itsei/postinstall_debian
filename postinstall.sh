@@ -1,12 +1,11 @@
 #!/bin/bash
 set -euo pipefail
 
-# Configuration par défaut (master VM clonable)
+# Configuration par défaut
 DEFAULT_IFACE="ens33"
 DEFAULT_DNS="8.8.8.8"
 DEFAULT_HOSTNAME="debian-master"
 
-# Arguments positionnels (tous optionnels)
 IFACE="${1:-$DEFAULT_IFACE}"
 IPADDR="${2:-}"
 NETMASK="${3:-}"
@@ -24,21 +23,20 @@ apt update -y && apt full-upgrade -y
 
 echo "[2/9] Installation des outils essentiels..."
 apt install -y \
-    openssh-server zip unzip nmap ncdu wget git screen \
+    openssh-server zip unzip nmap mlocate ncdu wget git screen \
     bind9-dnsutils net-tools sudo lynx ca-certificates
-    
+
+updatedb &> /dev/null || true   # mlocate installé → updatedb existe maintenant
+
 echo "[3/9] Installation Samba + Winbind..."
 apt install -y samba winbind
 
 echo "[4/9] Configuration résolution noms (WINS)..."
-if grep -q "^hosts:" /etc/nsswitch.conf; then
+grep -q "^hosts:.*wins" /etc/nsswitch.conf || \
     sed -i 's/^hosts:.*/hosts: files dns wins/' /etc/nsswitch.conf
-else
-    echo 'hosts: files dns wins' >> /etc/nsswitch.conf
-fi
 
 echo "[5/9] Activation couleurs Bash root..."
-sed -i '9,13s/^#//' /root/.bashrc || true
+sed -i '9,13s/^#//' /root/.bashrc
 
 echo "[6/9] Configuration réseau..."
 if [[ -n "$IPADDR" && -n "$NETMASK" && -n "$GATEWAY" ]]; then
@@ -51,11 +49,11 @@ iface $IFACE inet static
 EOF
     echo "IP statique appliquée : $IPADDR"
 else
-    echo "Aucun paramètre IP → DHCP conservé"
+    echo "Aucun paramètre IP → DHCP conservé
 fi
 
 echo "[7/9] Configuration DNS..."
-[[ -f /etc/resolv.conf ]] && cp /etc/resolv.conf /etc/resolv.conf.bak
+[[ -f /etc/resolv.conf ]] && cp -a /etc/resolv.conf /etc/resolv.conf.bak
 cat > /etc/resolv.conf <<EOF
 nameserver $DNS
 search lan
@@ -66,7 +64,7 @@ hostnamectl set-hostname "$HOSTNAME"
 echo "$HOSTNAME" > /etc/hostname
 
 echo "[9/9] Installation Webmin..."
-if ! dpkg -l | awk '{print $2}' | grep -qx "webmin"; then
+if ! dpkg -l | grep -q "^ii  webmin "; then
     curl -sS -o /root/webmin-setup-repo.sh \
         https://raw.githubusercontent.com/webmin/webmin/master/webmin-setup-repo.sh
     bash /root/webmin-setup-repo.sh >/dev/null
@@ -81,10 +79,10 @@ echo
 echo "=========================================="
 echo "     POSTINSTALL TERMINÉ AVEC SUCCÈS"
 echo "=========================================="
-[[ -n "$IPADDR" ]] && echo "IP configurée : $IPADDR"
-echo "DNS           : $DNS"
-echo "Interface     : $IFACE"
-echo "Hostname      : $HOSTNAME"
+[[ -n "$IPADDR" ]] && echo "IP configurée     : $IPADDR"
+echo "DNS               : $DNS"
+echo "Interface         : $IFACE"
+echo "Hostname          : $HOSTNAME"
 echo
 echo "Redémarrez maintenant : reboot"
 echo "=========================================="
