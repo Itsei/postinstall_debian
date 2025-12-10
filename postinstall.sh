@@ -91,13 +91,17 @@ echo "$HOSTNAME" > /etc/hostname
 # --- 9. Installation Webmin ---
 echo "[9/9] Installation Webmin..."
 
-curl -o webmin-setup-repo.sh https://raw.githubusercontent.com/webmin/webmin/master/webmin-setup-repo.sh
+apt update -y
+apt install -y curl
 
-sh webmin-setup-repo.sh --force
+curl -sS -o webmin-setup-repo.sh https://raw.githubusercontent.com/webmin/webmin/master/webmin-setup-repo.sh
 
-apt install webmin -y --install-recommends
+sh webmin-setup-repo.sh --force </dev/null
 
-rm webmin-setup-repo.sh
+apt update -y
+apt install -y --install-recommends webmin
+
+rm -f webmin-setup-repo.sh
 # --- Fin ---
 echo
 echo "=========================================="
