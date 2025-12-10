@@ -49,7 +49,9 @@ grep -q "^hosts:.*wins" /etc/nsswitch.conf || \
 echo "[5/9] Activation couleurs Bash root..."
 LINES=$(wc -l < /root/.bashrc)
 if [ "$LINES" -ge 13 ]; then
-    sed -i '9,13s/^#//' /root/.bashrc
+    sed -i '9,13s/^[[:space:]]*#//' /root/.bashrc
+else
+    sed -i 's/^[[:space:]]*#\(.*force_color_prompt.*\)/\1/' /root/.bashrc || true
 fi
 
 echo "[6/9] Configuration réseau..."
