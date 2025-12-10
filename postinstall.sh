@@ -63,12 +63,15 @@ echo "$HOSTNAME" > /etc/hostname
 
 echo "[9/9] Installation Webmin..."
 if ! dpkg -l | grep -q "^ii  webmin "; then
-    # Télécharger le script d'installation officiel Webmin
-    wget -qO /tmp/webmin-setup-repo.sh https://raw.githubusercontent.com/webmin/webmin/master/webmin-setup-repo.sh
-    bash /tmp/webmin-setup-repo.sh
+    # Installer les paquets requis pour HTTPS
+    apt install -y gnupg wget
+
+    # Ajouter le dépôt Webmin et la clé GPG
+    wget -qO- http://www.webmin.com/jcameron-key.asc | gpg --dearmor > /usr/share/keyrings/webmin.gpg
+    echo "deb [signed-by=/usr/share/keyrings/webmin.gpg] http://download.webmin.com/download/repository sarge contrib" > /etc/apt/sources.list.d/webmin.list
+
     apt update -y
     apt install -y webmin --install-recommends
-    rm -f /tmp/webmin-setup-repo.sh
 else
     echo "Webmin déjà présent"
 fi
