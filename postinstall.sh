@@ -5,13 +5,9 @@ DEFAULT_IFACE="ens33"
 DEFAULT_DNS="8.8.8.8"
 DEFAULT_HOSTNAME="debian-master"
 
-# Arguments à passer pour IP statique et DNS
 IFACE="${1:-$DEFAULT_IFACE}"
-IPADDR="${2:-}"       # Exemple: 192.168.1.50
-NETMASK="${3:-}"      # Exemple: 255.255.255.0
-GATEWAY="${4:-}"      # Exemple: 192.168.1.1
-DNS="${5:-$DEFAULT_DNS}"
-HOSTNAME="${6:-$DEFAULT_HOSTNAME}"
+DNS="${2:-$DEFAULT_DNS}"
+HOSTNAME="${3:-$DEFAULT_HOSTNAME}"
 
 clear
 echo "=========================================="
@@ -23,8 +19,10 @@ apt update -y && apt full-upgrade -y
 
 echo "[2/9] Installation des outils essentiels..."
 apt install -y \
-    openssh-server zip unzip nmap ncdu wget git screen \
+    openssh-server zip unzip nmap locate ncdu wget git screen \
     bind9-dnsutils net-tools sudo lynx ca-certificates
+
+updatedb &> /dev/null || true
 
 echo "[3/9] Installation Samba + Winbind..."
 apt install -y samba winbind
@@ -36,8 +34,16 @@ grep -q "^hosts:.*wins" /etc/nsswitch.conf || \
 echo "[5/9] Activation couleurs Bash root..."
 sed -i '9,13s/^#//' /root/.bashrc || true
 
+# Demande interactive pour IP statique
+read -p "Souhaitez-vous configurer une IP statique ? (y/n) : " STATIC
+if [[ "$STATIC" =~ ^[Yy]$ ]]; then
+    read -p "Adresse IP : " IPADDR
+    read -p "Netmask : " NETMASK
+    read -p "Gateway : " GATEWAY
+fi
+
 echo "[6/9] Configuration réseau..."
-if [[ -n "$IPADDR" && -n "$NETMASK" && -n "$GATEWAY" ]]; then
+if [[ -n "${IPADDR:-}" && -n "${NETMASK:-}" && -n "${GATEWAY:-}" ]]; then
     cat > /etc/network/interfaces <<EOF
 auto $IFACE
 iface $IFACE inet static
@@ -67,7 +73,7 @@ if ! dpkg -l | grep -q "^ii  webmin "; then
     curl -sS -o /tmp/webmin-setup-repo.sh https://raw.githubusercontent.com/webmin/webmin/master/webmin-setup-repo.sh
     sh /tmp/webmin-setup-repo.sh
     apt update -y
-    DEBIAN_FRONTEND=noninteractive apt install -y webmin --install-recommends
+    apt install -y webmin --install-recommends
     rm -f /tmp/webmin-setup-repo.sh
 else
     echo "Webmin déjà présent"
@@ -77,9 +83,7 @@ echo
 echo "=========================================="
 echo "     POSTINSTALL TERMINÉ AVEC SUCCÈS"
 echo "=========================================="
-[[ -n "$IPADDR" ]] && echo "IP configurée     : $IPADDR"
-echo "Netmask           : $NETMASK"
-echo "Gateway           : $GATEWAY"
+[[ -n "${IPADDR:-}" ]] && echo "IP configurée     : $IPADDR"
 echo "DNS               : $DNS"
 echo "Interface         : $IFACE"
 echo "Hostname          : $HOSTNAME"
