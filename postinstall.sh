@@ -91,12 +91,17 @@ echo "$HOSTNAME" > /etc/hostname
 # --- 9. Installation Webmin silencieuse ---
 echo "[9/9] Installation Webmin..."
 if ! dpkg -l | grep -q "^ii  webmin "; then
-    apt install -y curl gnupg
+    apt install -y curl gnupg apt-transport-https software-properties-common
     curl -sS -o /tmp/webmin-setup-repo.sh https://raw.githubusercontent.com/webmin/webmin/master/webmin-setup-repo.sh
     sh /tmp/webmin-setup-repo.sh </dev/null
-    apt update -y
-    apt install -y webmin --install-recommends
-    rm -f /tmp/webmin-setup-repo.sh
+    if [ -f /etc/apt/sources.list.d/webmin.list ]; then
+        apt update -y
+        apt install -y webmin --install-recommends
+        rm -f /tmp/webmin-setup-repo.sh
+    else
+        echo "Erreur : le dépôt Webmin n'a pas été ajouté correctement."
+        exit 1
+    fi
 else
     echo "Webmin déjà présent"
 fi
