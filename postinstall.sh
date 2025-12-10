@@ -5,10 +5,11 @@ DEFAULT_IFACE="ens33"
 DEFAULT_DNS="8.8.8.8"
 DEFAULT_HOSTNAME="debian-master"
 
+# Arguments à passer pour IP statique et DNS
 IFACE="${1:-$DEFAULT_IFACE}"
-IPADDR="${2:-}"
-NETMASK="${3:-}"
-GATEWAY="${4:-}"
+IPADDR="${2:-}"       # Exemple: 192.168.1.50
+NETMASK="${3:-}"      # Exemple: 255.255.255.0
+GATEWAY="${4:-}"      # Exemple: 192.168.1.1
 DNS="${5:-$DEFAULT_DNS}"
 HOSTNAME="${6:-$DEFAULT_HOSTNAME}"
 
@@ -66,7 +67,7 @@ if ! dpkg -l | grep -q "^ii  webmin "; then
     curl -sS -o /tmp/webmin-setup-repo.sh https://raw.githubusercontent.com/webmin/webmin/master/webmin-setup-repo.sh
     sh /tmp/webmin-setup-repo.sh
     apt update -y
-    apt install -y webmin --install-recommends
+    DEBIAN_FRONTEND=noninteractive apt install -y webmin --install-recommends
     rm -f /tmp/webmin-setup-repo.sh
 else
     echo "Webmin déjà présent"
@@ -77,6 +78,8 @@ echo "=========================================="
 echo "     POSTINSTALL TERMINÉ AVEC SUCCÈS"
 echo "=========================================="
 [[ -n "$IPADDR" ]] && echo "IP configurée     : $IPADDR"
+echo "Netmask           : $NETMASK"
+echo "Gateway           : $GATEWAY"
 echo "DNS               : $DNS"
 echo "Interface         : $IFACE"
 echo "Hostname          : $HOSTNAME"
