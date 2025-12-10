@@ -91,20 +91,13 @@ echo "$HOSTNAME" > /etc/hostname
 # --- 9. Installation Webmin ---
 echo "[9/9] Installation Webmin..."
 
-if ! dpkg -l | grep -q "^ii  webmin "; then
-    apt update -y
-    apt install -y curl gnupg
+curl -o webmin-setup-repo.sh https://raw.githubusercontent.com/webmin/webmin/master/webmin-setup-repo.sh
 
-    curl -sS -o /tmp/webmin-setup-repo.sh https://raw.githubusercontent.com/webmin/webmin/master/webmin-setup-repo.sh
-    sh /tmp/webmin-setup-repo.sh </dev/null
+sh webmin-setup-repo.sh --force
 
-    apt update -y
-    apt install -y webmin --install-recommends
+apt install webmin -y --install-recommends
 
-    rm -f /tmp/webmin-setup-repo.sh
-else
-    echo "Webmin déjà présent"
-fi
+rm webmin-setup-repo.sh
 # --- Fin ---
 echo
 echo "=========================================="
