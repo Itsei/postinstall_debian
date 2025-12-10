@@ -5,9 +5,26 @@ DEFAULT_IFACE="ens33"
 DEFAULT_DNS="8.8.8.8"
 DEFAULT_HOSTNAME="debian-master"
 
-IFACE="${1:-$DEFAULT_IFACE}"
-DNS="${2:-$DEFAULT_DNS}"
-HOSTNAME="${3:-$DEFAULT_HOSTNAME}"
+read -p "Voulez-vous configurer une IP statique ? (y/N) " USE_STATIC
+
+if [[ "$USE_STATIC" =~ ^[Yy]$ ]]; then
+    read -p "Interface réseau [${DEFAULT_IFACE}] : " IFACE
+    IFACE=${IFACE:-$DEFAULT_IFACE}
+    read -p "Adresse IP : " IPADDR
+    read -p "Masque réseau : " NETMASK
+    read -p "Passerelle : " GATEWAY
+else
+    IFACE="$DEFAULT_IFACE"
+    IPADDR=""
+    NETMASK=""
+    GATEWAY=""
+fi
+
+read -p "DNS [${DEFAULT_DNS}] : " DNS
+DNS=${DNS:-$DEFAULT_DNS}
+
+read -p "Hostname [${DEFAULT_HOSTNAME}] : " HOSTNAME
+HOSTNAME=${HOSTNAME:-$DEFAULT_HOSTNAME}
 
 clear
 echo "=========================================="
@@ -19,10 +36,8 @@ apt update -y && apt full-upgrade -y
 
 echo "[2/9] Installation des outils essentiels..."
 apt install -y \
-    openssh-server zip unzip nmap locate ncdu wget git screen \
+    openssh-server zip unzip nmap ncdu wget git screen \
     bind9-dnsutils net-tools sudo lynx ca-certificates
-
-updatedb &> /dev/null || true
 
 echo "[3/9] Installation Samba + Winbind..."
 apt install -y samba winbind
@@ -32,18 +47,13 @@ grep -q "^hosts:.*wins" /etc/nsswitch.conf || \
     sed -i 's/^hosts:.*/hosts: files dns wins/' /etc/nsswitch.conf
 
 echo "[5/9] Activation couleurs Bash root..."
-sed -i '9,13s/^#//' /root/.bashrc || true
-
-# Demande interactive pour IP statique
-read -p "Souhaitez-vous configurer une IP statique ? (y/n) : " STATIC
-if [[ "$STATIC" =~ ^[Yy]$ ]]; then
-    read -p "Adresse IP : " IPADDR
-    read -p "Netmask : " NETMASK
-    read -p "Gateway : " GATEWAY
+LINES=$(wc -l < /root/.bashrc)
+if [ "$LINES" -ge 13 ]; then
+    sed -i '9,13s/^#//' /root/.bashrc
 fi
 
 echo "[6/9] Configuration réseau..."
-if [[ -n "${IPADDR:-}" && -n "${NETMASK:-}" && -n "${GATEWAY:-}" ]]; then
+if [[ -n "$IPADDR" && -n "$NETMASK" && -n "$GATEWAY" ]]; then
     cat > /etc/network/interfaces <<EOF
 auto $IFACE
 iface $IFACE inet static
@@ -53,7 +63,7 @@ iface $IFACE inet static
 EOF
     echo "IP statique appliquée : $IPADDR"
 else
-    echo "Aucun paramètre IP → DHCP conservé"
+    echo "DHCP conservé"
 fi
 
 echo "[7/9] Configuration DNS..."
@@ -73,7 +83,7 @@ if ! dpkg -l | grep -q "^ii  webmin "; then
     curl -sS -o /tmp/webmin-setup-repo.sh https://raw.githubusercontent.com/webmin/webmin/master/webmin-setup-repo.sh
     sh /tmp/webmin-setup-repo.sh
     apt update -y
-    apt install -y webmin --install-recommends
+    apt install -y webmin --install-recommends -y
     rm -f /tmp/webmin-setup-repo.sh
 else
     echo "Webmin déjà présent"
@@ -83,7 +93,7 @@ echo
 echo "=========================================="
 echo "     POSTINSTALL TERMINÉ AVEC SUCCÈS"
 echo "=========================================="
-[[ -n "${IPADDR:-}" ]] && echo "IP configurée     : $IPADDR"
+[[ -n "$IPADDR" ]] && echo "IP configurée     : $IPADDR"
 echo "DNS               : $DNS"
 echo "Interface         : $IFACE"
 echo "Hostname          : $HOSTNAME"
