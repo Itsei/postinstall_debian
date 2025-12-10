@@ -34,7 +34,7 @@ grep -q "^hosts:.*wins" /etc/nsswitch.conf || \
     sed -i 's/^hosts:.*/hosts: files dns wins/' /etc/nsswitch.conf
 
 echo "[5/9] Activation couleurs Bash root..."
-sed -i '9,13s/^#//' /root/.bashrc
+sed -i '9,13s/^#//' /root/.bashrc || true
 
 echo "[6/9] Configuration réseau..."
 if [[ -n "$IPADDR" && -n "$NETMASK" && -n "$GATEWAY" ]]; then
@@ -63,12 +63,9 @@ echo "$HOSTNAME" > /etc/hostname
 
 echo "[9/9] Installation Webmin..."
 if ! dpkg -l | grep -q "^ii  webmin "; then
-    curl -sS -o /root/webmin-setup-repo.sh \
-        https://raw.githubusercontent.com/webmin/webmin/master/webmin-setup-repo.sh
-    bash /root/webmin-setup-repo.sh >/dev/null
+    wget -qO- https://raw.githubusercontent.com/webmin/webmin/master/webmin-setup-repo.sh | bash
     apt update -y
     apt install -y webmin --install-recommends
-    rm -f /root/webmin-setup-repo.sh
 else
     echo "Webmin déjà présent"
 fi
