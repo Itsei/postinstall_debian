@@ -83,7 +83,7 @@ echo "[9/9] Installation Webmin..."
 if ! dpkg -l | grep -q "^ii  webmin "; then
     apt install -y curl
     curl -sS -o /tmp/webmin-setup-repo.sh https://raw.githubusercontent.com/webmin/webmin/master/webmin-setup-repo.sh
-    sh /tmp/webmin-setup-repo.sh
+    yes | sh /tmp/webmin-setup-repo.sh
     apt update -y
     apt install -y webmin --install-recommends -y
     rm -f /tmp/webmin-setup-repo.sh
