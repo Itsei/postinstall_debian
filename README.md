@@ -2,10 +2,8 @@
 
 ## Pré-requis
 ```bash
-sudo -i
-apt update -y
-apt install -y openssh-server wget
-systemctl enable --now ssh
+apt-get update -y
+apt-get install ssh -y
 Exécution du script
 bash
 Copier le code
