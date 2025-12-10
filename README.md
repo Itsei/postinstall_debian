@@ -5,7 +5,7 @@
 apt-get update -y
 apt-get install ssh -y
 ```
-##Exécution du script
+## Exécution du script
 ```bash
 sudo bash <(wget -qO- https://github.com/<votre-repo>/raw/main/postinstall.sh)
 ```
